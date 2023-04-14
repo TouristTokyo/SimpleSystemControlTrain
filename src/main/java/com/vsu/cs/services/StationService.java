@@ -35,7 +35,11 @@ public class StationService {
     }
 
     public Station getStation(BigInteger id) {
-        return stationRepository.findById(id).orElseThrow(StationNotFoundException::new);
+        Station station = stationRepository.findById(id).orElse(null);
+        if (station == null) {
+            throw new StationNotFoundException("Not found station with id: " + id);
+        }
+        return station;
     }
 }
 

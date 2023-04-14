@@ -1,12 +1,11 @@
 package com.vsu.cs.models;
 
 import jakarta.persistence.*;
-import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
-import lombok.RequiredArgsConstructor;
 
 import java.math.BigInteger;
+import java.time.LocalDate;
 import java.util.Date;
 
 @Entity
@@ -23,10 +22,10 @@ public class Event {
     private String description;
 
     @Column(name = "event_date")
-    private Date date;
+    private LocalDate date;
 
-    public Event(String description, Date date) {
+    public Event(String description) {
         this.description = description;
-        this.date = date;
+        this.date = LocalDate.now();
     }
 }

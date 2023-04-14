@@ -1,7 +1,7 @@
 package com.vsu.cs.controllers;
 
-import com.vsu.cs.dto.EventDto;
 import com.vsu.cs.models.Event;
+import com.vsu.cs.dto.EventDto;
 import com.vsu.cs.services.EventService;
 import jakarta.validation.Valid;
 import org.modelmapper.ModelMapper;
@@ -11,6 +11,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.*;
 
+import java.time.LocalDate;
 import java.util.Date;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -38,7 +39,7 @@ public class EventController {
             return ResponseEntity.badRequest().body(HttpStatus.BAD_REQUEST);
         }
         Event event = convertToEvent(eventDto);
-        event.setDate(new Date());
+        event.setDate(LocalDate.now());
         eventService.addEvent(event);
         return ResponseEntity.ok(HttpStatus.OK);
     }

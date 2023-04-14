@@ -16,6 +16,7 @@ import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.*;
 
 import java.math.BigInteger;
+import java.time.LocalDate;
 import java.util.Date;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -65,8 +66,8 @@ public class RoutController {
     @ExceptionHandler
     private ResponseEntity<ErrorResponse> handleException(RoutNotFoundException ex) {
         ErrorResponse response = new ErrorResponse(
-                "Rout not found",
-                new Date()
+                ex.getMessage(),
+                LocalDate.now()
         );
         return new ResponseEntity<>(response, HttpStatus.NOT_FOUND);
     }

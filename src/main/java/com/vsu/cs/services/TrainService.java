@@ -27,7 +27,11 @@ public class TrainService {
     }
 
     public Train getTrain(BigInteger id) {
-        return trainRepository.findById(id).orElseThrow(TrainNotFoundException::new);
+        Train train = trainRepository.findById(id).orElse(null);
+        if (train == null) {
+            throw new TrainNotFoundException("Not fount train with id: " + id);
+        }
+        return train;
     }
 
     @Transactional

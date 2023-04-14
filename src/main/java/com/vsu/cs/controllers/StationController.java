@@ -14,6 +14,7 @@ import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.*;
 
 import java.math.BigInteger;
+import java.time.LocalDate;
 import java.util.Date;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -60,8 +61,8 @@ public class StationController {
     @ExceptionHandler
     private ResponseEntity<ErrorResponse> handleException(StationNotFoundException ex) {
         ErrorResponse response = new ErrorResponse(
-                "Station not found",
-                new Date()
+                ex.getMessage(),
+                LocalDate.now()
         );
         return new ResponseEntity<>(response, HttpStatus.NOT_FOUND);
     }

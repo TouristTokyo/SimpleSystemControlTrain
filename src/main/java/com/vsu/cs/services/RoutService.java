@@ -25,7 +25,11 @@ public class RoutService {
     }
 
     public Rout getRout(BigInteger id) {
-        return routRepository.findById(id).orElseThrow(RoutNotFoundException::new);
+        Rout rout = routRepository.findById(id).orElse(null);
+        if (rout == null) {
+            throw new RoutNotFoundException("Not found rout with id: " + id);
+        }
+        return rout;
     }
 
     @Transactional

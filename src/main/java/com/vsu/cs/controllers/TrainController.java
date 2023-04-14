@@ -16,7 +16,7 @@ import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.*;
 
 import java.math.BigInteger;
-import java.util.Date;
+import java.time.LocalDate;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -69,17 +69,17 @@ public class TrainController {
         Train trainLast = trainService.getTrain(id);
         if (trainLast.getIsBroken() != trainDto.getIsBroken()) {
             if (trainDto.getIsBroken()) {
-                eventService.addEvent(new Event("train (" + trainDto.getName() + ") " + "broke down", new Date()));
+                eventService.addEvent(new Event("train (" + trainDto.getName() + ") " + "broke down"));
             } else {
-                eventService.addEvent(new Event("train (" + trainDto.getName() + ")" + "  is fixed", new Date()));
+                eventService.addEvent(new Event("train (" + trainDto.getName() + ")" + "  is fixed"));
             }
         }
         if (!trainDto.getCurrentStation().equals(trainLast.getCurrentStation())) {
             eventService.addEvent(new Event("train (" + trainDto.getName() + ") " +
-                    "arrived at the station (" + trainDto.getCurrentStation().getName() + ")", new Date()));
+                    "arrived at the station (" + trainDto.getCurrentStation().getName() + ")"));
         } else {
             eventService.addEvent(new Event("train (" + trainDto.getName() + ")" +
-                    "left the station (" + trainDto.getCurrentStation().getName() + ")", new Date()));
+                    "left the station (" + trainDto.getCurrentStation().getName() + ")"));
         }
         trainService.update(id, convertToTtrain(trainDto));
         return ResponseEntity.ok(HttpStatus.OK);
@@ -88,8 +88,8 @@ public class TrainController {
     @ExceptionHandler
     private ResponseEntity<ErrorResponse> handleException(TrainNotFoundException ex) {
         ErrorResponse response = new ErrorResponse(
-                "Train not found",
-                new Date()
+                ex.getMessage(),
+                LocalDate.now()
         );
         return new ResponseEntity<>(response, HttpStatus.NOT_FOUND);
     }

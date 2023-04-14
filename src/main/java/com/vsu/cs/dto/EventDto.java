@@ -3,12 +3,12 @@ package com.vsu.cs.dto;
 import jakarta.validation.constraints.NotNull;
 import lombok.Data;
 
-import java.util.Date;
+import java.time.LocalDate;
 
 @Data
 public class EventDto {
     @NotNull
     private String description;
 
-    private Date date;
+    private LocalDate date;
 }
