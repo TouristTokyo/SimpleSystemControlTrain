@@ -1,9 +1,12 @@
 package com.vsu.cs.controllers;
 
+import com.vsu.cs.dto.TrainCreateDto;
 import com.vsu.cs.dto.TrainDto;
 import com.vsu.cs.models.Event;
 import com.vsu.cs.models.Train;
 import com.vsu.cs.services.EventService;
+import com.vsu.cs.services.RoutService;
+import com.vsu.cs.services.StationService;
 import com.vsu.cs.services.TrainService;
 import com.vsu.cs.utils.ErrorResponse;
 import com.vsu.cs.utils.execptions.TrainNotFoundException;
@@ -25,12 +28,16 @@ import java.util.stream.Collectors;
 public class TrainController {
     private final TrainService trainService;
     private final EventService eventService;
+    private final StationService stationService;
+    private final RoutService routService;
     private final ModelMapper modelMapper;
 
     @Autowired
-    public TrainController(TrainService trainService, EventService eventService, ModelMapper mapper) {
+    public TrainController(TrainService trainService, EventService eventService, StationService stationService, RoutService routService, ModelMapper mapper) {
         this.trainService = trainService;
         this.eventService = eventService;
+        this.stationService = stationService;
+        this.routService = routService;
         this.modelMapper = mapper;
     }
 
@@ -45,7 +52,7 @@ public class TrainController {
     }
 
     @PostMapping("/create")
-    public ResponseEntity<HttpStatus> create(@RequestBody @Valid TrainDto trainDto, BindingResult bindingResult) {
+    public ResponseEntity<HttpStatus> create(@RequestBody @Valid TrainCreateDto trainDto, BindingResult bindingResult) {
         if (bindingResult.hasErrors()) {
             return ResponseEntity.badRequest().body(HttpStatus.BAD_REQUEST);
         }
@@ -62,7 +69,7 @@ public class TrainController {
 
     @PutMapping("/{id}/edit")
     public ResponseEntity<HttpStatus> update(@PathVariable("id") BigInteger id,
-                                             @RequestBody @Valid TrainDto trainDto, BindingResult bindingResult) {
+                                             @RequestBody @Valid TrainCreateDto trainDto, BindingResult bindingResult) {
         if (bindingResult.hasErrors()) {
             return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
         }
@@ -74,12 +81,9 @@ public class TrainController {
                 eventService.addEvent(new Event("train (" + trainDto.getName() + ")" + "  is fixed"));
             }
         }
-        if (!trainDto.getCurrentStation().equals(trainLast.getCurrentStation())) {
-            eventService.addEvent(new Event("train (" + trainDto.getName() + ") " +
-                    "arrived at the station (" + trainDto.getCurrentStation().getName() + ")"));
-        } else {
-            eventService.addEvent(new Event("train (" + trainDto.getName() + ")" +
-                    "left the station (" + trainDto.getCurrentStation().getName() + ")"));
+        if (!trainDto.getCurrentStationId().equals(trainLast.getCurrentStation().getId())) {
+            eventService.addEvent(new Event("train (" + trainLast.getName() + ")" +
+                    "left the station (" + trainLast.getCurrentStation().getName() + ")"));
         }
         trainService.update(id, convertToTtrain(trainDto));
         return ResponseEntity.ok(HttpStatus.OK);
@@ -98,7 +102,14 @@ public class TrainController {
         return modelMapper.map(train, TrainDto.class);
     }
 
-    private Train convertToTtrain(TrainDto trainDto) {
-        return modelMapper.map(trainDto, Train.class);
+    private Train convertToTtrain(TrainCreateDto trainDto) {
+        Train train = new Train();
+        train.setName(trainDto.getName());
+        train.setSpeed(trainDto.getSpeed());
+        train.setIsBroken(trainDto.getIsBroken());
+        train.setCurrentStation(stationService.getStation(trainDto.getCurrentStationId()));
+        train.setRout(routService.getRout(trainDto.getRoutId()));
+
+        return train;
     }
 }

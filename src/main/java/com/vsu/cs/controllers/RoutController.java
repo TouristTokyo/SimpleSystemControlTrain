@@ -1,9 +1,11 @@
 package com.vsu.cs.controllers;
 
+import com.vsu.cs.dto.RoutCreateDto;
 import com.vsu.cs.dto.RoutDto;
 import com.vsu.cs.models.Rout;
 import com.vsu.cs.models.Train;
 import com.vsu.cs.services.RoutService;
+import com.vsu.cs.services.StationService;
 import com.vsu.cs.services.TrainService;
 import com.vsu.cs.utils.ErrorResponse;
 import com.vsu.cs.utils.execptions.RoutNotFoundException;
@@ -17,7 +19,6 @@ import org.springframework.web.bind.annotation.*;
 
 import java.math.BigInteger;
 import java.time.LocalDate;
-import java.util.Date;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -27,12 +28,15 @@ public class RoutController {
 
     private final RoutService routService;
     private final TrainService trainService;
+    private final StationService stationService;
+
     private final ModelMapper modelMapper;
 
     @Autowired
-    public RoutController(RoutService routService, TrainService trainService, ModelMapper modelMapper) {
+    public RoutController(RoutService routService, TrainService trainService, StationService stationService, ModelMapper modelMapper) {
         this.routService = routService;
         this.trainService = trainService;
+        this.stationService = stationService;
         this.modelMapper = modelMapper;
     }
 
@@ -42,7 +46,7 @@ public class RoutController {
     }
 
     @PostMapping("/create")
-    public ResponseEntity<HttpStatus> create(@RequestBody @Valid RoutDto routDto, BindingResult bindingResult) {
+    public ResponseEntity<HttpStatus> create(@RequestBody @Valid RoutCreateDto routDto, BindingResult bindingResult) {
         if (bindingResult.hasErrors()) {
             return ResponseEntity.badRequest().body(HttpStatus.BAD_REQUEST);
         }
@@ -76,7 +80,12 @@ public class RoutController {
         return modelMapper.map(rout, RoutDto.class);
     }
 
-    private Rout convertToRout(RoutDto routDto) {
-        return modelMapper.map(routDto, Rout.class);
+    private Rout convertToRout(RoutCreateDto routDto) {
+        Rout rout = new Rout();
+        rout.setName(routDto.getName());
+        rout.setStationStart(stationService.getStation(routDto.getStationStartId()));
+        rout.setStationEnd(stationService.getStation(routDto.getStationEndId()));
+
+        return rout;
     }
 }
